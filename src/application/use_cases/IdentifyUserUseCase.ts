@@ -11,6 +11,7 @@ export interface IdentifyUserUseCaseResponse {
     statusCode: number; // Código HTTP adequado
 }
 
+
 // Caso de uso para identificar/verificar um usuário existente
 export class IdentifyUserUseCase {
     constructor(
