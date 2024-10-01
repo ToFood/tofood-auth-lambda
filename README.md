@@ -1,4 +1,4 @@
-# Lambda Authentication
+# Authentication
 
 Este projeto fornece uma autenticação de usuário utilizando AWS Lambda, MongoDB, e Mongoose.
 
