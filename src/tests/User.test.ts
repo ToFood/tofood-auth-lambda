@@ -2,6 +2,7 @@ import { IdentifyUserUseCase } from "../application/use_cases/IdentifyUserUseCas
 import { IUserRepository } from "../core/interfaces/IUserRepository";
 import { User } from "../core/entities/User";
 import { beforeEach, describe, it, expect } from "@jest/globals";
+import jwt from 'jsonwebtoken'; // Importa o JWT para verificar tokens
 
 // Mock do repositório do usuário
 class MockUserRepository implements IUserRepository {
@@ -30,9 +31,9 @@ describe("IdentifyUser Use Case", () => {
      * Testes para [IdentifyUser]
      */
     describe("IdentifyUser", () => {
-        it("deve retornar que o usuário foi encontrado pelo CPF", async () => {
+        it("deve retornar que o usuário foi encontrado pelo CPF, junto com um token", async () => {
             // Dados do usuário a ser registrado no mock repository
-            const userRequest = new User("12345678901", "João da Silva", "joao@example.com");
+            const userRequest = new User("12345678901", "João da Silva", "bob@example.com");
 
             // Salvando o usuário no mock repository
             await userRepository.save(userRequest);
@@ -43,6 +44,12 @@ describe("IdentifyUser Use Case", () => {
             // Valida que o usuário foi encontrado
             expect(result.statusCode).toBe(200);
             expect(result.message).toBe("Cliente Identificado"); // Alterado para "Cliente Identificado"
+            expect(result.token).toBeDefined(); // Valida que o token foi gerado
+            expect(typeof result.token).toBe("string"); // Verifica se o token é uma string
+
+            // Opcional: verificar se o token é válido usando a chave secreta
+            const decoded = jwt.verify(result.token as string, process.env.JWT_SECRET || 'defaultsecret');
+            expect(decoded).toHaveProperty("cpf", userRequest.cpf);
         });
 
         it("deve retornar que o usuário não foi encontrado pelo CPF", async () => {

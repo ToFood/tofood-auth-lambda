@@ -10,7 +10,7 @@ connectDB(); // Conecta ao MongoDB
 // Controlador que lida com operações do usuário
 class UserController {
     // Método para identificar um usuário pelo CPF
-    static async IdentifyUserUseCaseByCPF(req: Request, res: Response): Promise<void> {
+    static async identifyUserByCPF(req: Request, res: Response): Promise<void> {
         try {
             // Extrai o CPF dos parâmetros da rota
             const { cpf } = req.params;
@@ -26,7 +26,11 @@ class UserController {
             const response = await identifyUserUseCase.execute({ cpf });
 
             // Retorna a resposta com base no resultado do caso de uso
-            res.status(response.statusCode).json({ message: response.message });
+            if (response.statusCode === 200 && response.token) {
+                res.status(response.statusCode).json({ message: response.message, token: response.token });
+            } else {
+                res.status(response.statusCode).json({ message: response.message });
+            }
         } catch (error: unknown) {
             // Garante que o error seja tratado como um objeto Error
             if (error instanceof Error) {

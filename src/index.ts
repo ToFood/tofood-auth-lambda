@@ -15,7 +15,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // Define uma rota GET para identificação de usuário pelo CPF
-app.get('/identify/:cpf', UserController.IdentifyUserUseCaseByCPF);
+app.get('/identify/:cpf', UserController.identifyUserByCPF);
 
 // Inicia o servidor
 app.listen(PORT, () => {
