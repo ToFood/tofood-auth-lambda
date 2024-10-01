@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import UserController from './interfaces/controllers/UserController';
+import UserController from './adapters/controllers/UserController';
 
 // Carrega as variáveis de ambiente do arquivo .env
 dotenv.config();
@@ -15,7 +15,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 // Define uma rota GET para identificação de usuário pelo CPF
-app.get('/identify/:cpf', UserController.identifyUserByCPF);
+app.get('/identify/:cpf', UserController.IdentifyUserUseCaseByCPF);
 
 // Inicia o servidor
 app.listen(PORT, () => {
