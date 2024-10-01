@@ -1,36 +1,40 @@
 import { IUserRepository } from '../../core/interfaces/IUserRepository';
-import { IAuthService } from '../../core/interfaces/IAuthService';
-import { User } from '../../core/entities/User';
 
-// Interface que define a requisição de registro do usuário
-interface RegisterUserRequest {
-    cpf: string;
-    name: string;
-    email: string;
-    password: string;
+// Interface que define a requisição de identificação do usuário
+export interface IdentifyUserRequest {
+    cpf: string; // CPF do usuário para identificação
 }
 
-// Caso de uso para registrar um novo usuário
-export class RegisterUser {
+// Interface que define a resposta de identificação do usuário
+export interface IdentifyUserResponse {
+    message: string; // Mensagem indicando o resultado da verificação
+    statusCode: number; // Código HTTP adequado
+}
+
+// Caso de uso para identificar/verificar um usuário existente
+export class IdentifyUser {
     constructor(
-        private userRepository: IUserRepository, // Repositório para interagir com o banco de dados
-        private authService: IAuthService // Serviço de autenticação (Cognito)
+        private userRepository: IUserRepository // Repositório para interagir com o banco de dados
     ) { }
 
-    // Método principal do caso de uso que realiza o registro do usuário
-    async execute(request: RegisterUserRequest): Promise<string> {
-        // Verifica se o usuário já existe no banco de dados pelo CPF
+    // Método principal do caso de uso que realiza a identificação do usuário
+    async execute(request: IdentifyUserRequest): Promise<IdentifyUserResponse> {
+        // Busca o usuário no banco de dados utilizando o CPF
         const existingUser = await this.userRepository.findByCPF(request.cpf);
 
+        // Retorna a resposta adequada de acordo com a presença do usuário no banco
         if (existingUser) {
-            throw new Error('User already exists'); // Se o usuário já existe, lança um erro
+            return {
+                message: 'User found',
+                statusCode: 200
+            };
+        } else {
+            return {
+                message: 'User not found',
+                statusCode: 404
+            };
         }
-
-        // Cria uma nova entidade de usuário e salva no banco de dados
-        const newUser = new User(request.cpf, request.name, request.email);
-        await this.userRepository.save(newUser);
-
-        // Registra o usuário no AWS Cognito
-        return this.authService.signUp(request.cpf, request.email, request.password);
     }
 }
+
+export default IdentifyUser;

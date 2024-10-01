@@ -1,38 +1,41 @@
-import { CognitoAuthService } from '../../infrastructure/services/CognitoAuthService';
 import { UserRepository } from '../../infrastructure/repositories/UserRepository';
-import { RegisterUser } from '../../application/use-cases/IdentifyUser';
+import { IdentifyUser } from '../../application/use-cases/IdentifyUser';
+import { Request, Response } from 'express';
+
+// Conecta ao banco de dados antes de qualquer operação
 import connectDB from '../../infrastructure/database/db';
 
-// Controlador que lida com a identificação de usuário
-export const IdentifyUserController = async (event: any) => {
-    await connectDB(); // Conecta ao banco de dados
+connectDB(); // Conecta ao MongoDB
 
-    // Extrai os parâmetros da requisição
-    const { cpf, name, email, password } = JSON.parse(event.body);
-    const userRepository = new UserRepository(); // Instancia o repositório do usuário
-    const authService = new CognitoAuthService(); // Instancia o serviço de autenticação
+// Controlador que lida com operações do usuário
+class UserController {
+    // Método para identificar um usuário pelo CPF
+    static async identifyUserByCPF(req: Request, res: Response): Promise<void> {
+        try {
+            // Extrai o CPF dos parâmetros da rota
+            const { cpf } = req.params;
+            if (!cpf) {
+                res.status(400).json({ message: 'CPF is required' });
+                return;
+            }
 
-    const registerUser = new RegisterUser(userRepository, authService); // Cria a instância do caso de uso de registro
+            const userRepository = new UserRepository(); // Instancia o repositório do usuário
+            const identifyUser = new IdentifyUser(userRepository); // Instancia o caso de uso de identificação do usuário
 
-    try {
-        // Executa o registro do usuário e envia resposta de sucesso
-        const message = await registerUser.execute({ cpf, name, email, password });
-        return {
-            statusCode: 201,
-            body: JSON.stringify({ message }),
-        };
-    } catch (error: unknown) {
-        // Garante que o error seja tratado como um objeto Error
-        if (error instanceof Error) {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ message: error.message || 'Internal server error' }),
-            };
-        } else {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ message: 'Unknown error occurred' }),
-            };
+            // Executa o caso de uso de identificação
+            const response = await identifyUser.execute({ cpf });
+
+            // Retorna a resposta com base no resultado do caso de uso
+            res.status(response.statusCode).json({ message: response.message });
+        } catch (error: unknown) {
+            // Garante que o error seja tratado como um objeto Error
+            if (error instanceof Error) {
+                res.status(500).json({ message: error.message || 'Internal server error' });
+            } else {
+                res.status(500).json({ message: 'Unknown error occurred' });
+            }
         }
     }
-};
+}
+
+export default UserController;
