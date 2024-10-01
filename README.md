@@ -27,7 +27,7 @@ Este projeto implementa um sistema de autenticação utilizando AWS Lambda e Cog
 O projeto utiliza **Clean Architecture** para facilitar a manutenção e o desenvolvimento futuro. A estrutura de pastas é organizada conforme a responsabilidade de cada módulo:
 
 ```bash
-lambda-auth-clean/
+-auth-clean/
   ├── src/
   │     ├── core/
   │     │     ├── entities/
@@ -71,25 +71,22 @@ DB_NAME=seu_nome_do_banco
 JWT_SECRET=sua_chave_secreta_jwt
 PORT: Porta na qual a API será exposta.
 JWT_SECRET: Uma chave secreta usada para assinar os tokens JWT.
-Instalação
 ```
 
-Para configurar o ambiente local e rodar o projeto, siga as instruções abaixo.
+Instalação Para configurar o ambiente local e rodar o projeto, siga as instruções abaixo.
 
 Clone o Repositório:
 
 sh```
 
-git clone https://github.com/seuusuario/tofood-auth-lambda.git
-cd tofood-auth-lambda
+git clone https://github.com/tofood/tofood-auth-.git
+cd tofood-auth
 
-```
+
 Instale as Dependências:
-sh
 
 npm install
 Compile o TypeScript:
-sh
 
 npm run build
 Rodando o Projeto
