@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // Define o nível da linguagem JavaScript (ES6 ou maior)
+    "module": "commonjs", // Configuração do módulo para compatibilidade com Node.js
+    "strict": true, // Habilita verificações estritas de tipos
+    "esModuleInterop": true, // Permite interoperabilidade entre CommonJS e ES Modules
+    "outDir": "./dist", // Diretório de saída dos arquivos compilados
+    "rootDir": "./src" // Diretório raiz dos arquivos TypeScript
+  },
+  "include": ["src/**/*.ts"]
+}
