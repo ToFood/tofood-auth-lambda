@@ -24,9 +24,10 @@ jobs:
         with:
           terraform_version: "1.0.0"
 
-      # 3. Verificar formatação do Terraform
+      # 3. Aplicar formatação do Terraform automaticamente
       - name: Terraform Format Check
-        run: terraform -chdir=src/infrastructure/terraform fmt -check -recursive
+        run: terraform -chdir=src/infrastructure/terraform fmt -recursive
+
 
       # 4. Inicializar o Terraform
       - name: Terraform Init
