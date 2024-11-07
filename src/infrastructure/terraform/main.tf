@@ -57,9 +57,9 @@ resource "aws_cognito_user_pool_client" "tofood_user_pool_client" {
   logout_urls   = ["https://tofood.com/logout"]
   
   # Validade dos Tokens (em minutos)
-  access_token_validity  = 65      
-  id_token_validity      = 65 
-  refresh_token_validity = 4300  
+  access_token_validity  = 5      
+  id_token_validity      = 5 
+  refresh_token_validity = 300  
 }
 
 
