@@ -16,7 +16,7 @@ env:
 
 jobs:
   terraform_pipeline:
-    name: Complete Terraform Pipeline
+    name: Terraform Pipeline
     runs-on: ubuntu-latest
 
     steps:
