@@ -3,8 +3,8 @@ provider "aws" {
 }
 
 # Cognito User Pool com autenticação via CPF
-resource "aws_cognito_user_pool" "cpf_user_pool" {
-  name = "cpf_user_pool"
+resource "aws_cognito_user_pool" "tofood_user_pool" {
+  name = "tofood_user_pool"
 
   # Configuração básica do Pool
   alias_attributes = []  # Remove aliases como e-mail ou telefone
@@ -39,43 +39,44 @@ resource "aws_cognito_user_pool" "cpf_user_pool" {
   mfa_configuration = "OFF"  # Desativa MFA
   tags = {
     Environment = "dev"
-    Project     = "CPF_Auth"
+    Project     = "tofood"
   }
 }
 
 # Cognito User Pool Client (App Client) sem autenticação com senha
-resource "aws_cognito_user_pool_client" "cpf_user_pool_client" {
-  name                   = "cpf_user_pool_client"
-  user_pool_id           = aws_cognito_user_pool.cpf_user_pool.id
+resource "aws_cognito_user_pool_client" "tofood_user_pool_client" {
+  name                   = "tofood_user_pool_client"
+  user_pool_id           = aws_cognito_user_pool.tofood_user_pool.id
   generate_secret        = false
 
   # Configuração de autenticação simplificada
-  explicit_auth_flows = ["ALLOW_ADMIN_NO_SRP_AUTH"]
+  explicit_auth_flows = ["ADMIN_NO_SRP_AUTH"]
 
-  # (Opcional) Configuração de URLs de callback para uso com OAuth, se necessário
-  callback_urls = ["https://example.com/callback"]
-  logout_urls   = ["https://example.com/logout"]
+  # Configuração de URLs de callback para uso com OAuth, se necessário
+  callback_urls = ["https://tofood.com/callback"]
+  logout_urls   = ["https://tofood.com/logout"]
   
-  # Validade dos Tokens
-  access_token_validity      = 60  # Em minutos
-  id_token_validity          = 60
-  refresh_token_validity     = 30  # Em dias
+  # Validade dos Tokens (em formato de duração)
+  access_token_validity  = "60m"  # Definido para 60 minutos
+  id_token_validity      = "60m"  # Definido para 60 minutos
+  refresh_token_validity = "30d"  # Definido para 30 dias
 }
 
-# (Opcional) Cognito User Pool Domain para URLs amigáveis de autenticação
-resource "aws_cognito_user_pool_domain" "cpf_user_pool_domain" {
-  domain       = "cpf-auth-domain"  # Defina um nome de domínio único
-  user_pool_id = aws_cognito_user_pool.cpf_user_pool.id
+# Cognito User Pool Domain para URLs amigáveis de autenticação
+resource "aws_cognito_user_pool_domain" "tofood_user_pool_domain" {
+  domain       = "tofood-auth-domain"  # Defina um nome de domínio único
+  user_pool_id = aws_cognito_user_pool.tofood_user_pool.id
 }
 
-output "cpf_user_pool_id" {
-  value = aws_cognito_user_pool.cpf_user_pool.id
+# Outputs para visualização de IDs e domínio
+output "tofood_user_pool_id" {
+  value = aws_cognito_user_pool.tofood_user_pool.id
 }
 
-output "cpf_user_pool_client_id" {
-  value = aws_cognito_user_pool_client.cpf_user_pool_client.id
+output "tofood_user_pool_client_id" {
+  value = aws_cognito_user_pool_client.tofood_user_pool_client.id
 }
 
-output "cpf_user_pool_domain" {
-  value = aws_cognito_user_pool_domain.cpf_user_pool_domain.domain
+output "tofood_user_pool_domain" {
+  value = aws_cognito_user_pool_domain.tofood_user_pool_domain.domain
 }
