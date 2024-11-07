@@ -5,38 +5,96 @@ on:
     branches:
       - "main"
 
+env:
+  TF_VERSION: 1.0.0
+  AWS_REGION: ${{ vars.AWS_REGION }}
+  AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
+  AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
+  KUBERNETES_CLUSTER_NAME: ${{ vars.KUBERNETES_CLUSTER_NAME }}
+
 jobs:
-  test-terraform:
-    name: Test Terraform
+  # Primeiro nó: Checkout e Setup do Terraform
+  setup:
+    name: Setup Terraform
     runs-on: ubuntu-latest
 
-    env:
-      TF_VERSION: 1.0.0
-
     steps:
-      # 1. Checkout do código-fonte
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2. Setup Terraform
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: "1.0.0"
+          terraform_version: "${{ env.TF_VERSION }}"
 
-      # 3. Aplicar formatação do Terraform automaticamente
+  # Segundo nó: Checagem de formatação
+  format_check:
+    name: Terraform Format Check
+    runs-on: ubuntu-latest
+    needs: setup
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Terraform Format Check
         run: terraform -chdir=src/infrastructure/terraform fmt -recursive
 
+  # Terceiro nó: Inicialização do Terraform
+  init:
+    name: Terraform Init
+    runs-on: ubuntu-latest
+    needs: format_check
 
-      # 4. Inicializar o Terraform
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Terraform Init
         run: terraform -chdir=src/infrastructure/terraform init
 
-      # 5. Validar a configuração do Terraform
+  # Quarto nó: Validação do Terraform
+  validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+    needs: init
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Terraform Validate
         run: terraform -chdir=src/infrastructure/terraform validate
 
-      # 6. Planejar as mudanças de infraestrutura e salvar o plano
+  # Quinto nó: Configuração de credenciais AWS
+  auth_aws:
+    name: AWS Credentials
+    runs-on: ubuntu-latest
+    needs: validate
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ env.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ env.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ env.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+  # Sexto nó: Planejamento do Terraform
+  plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    needs: auth_aws
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Terraform Plan
         run: terraform -chdir=src/infrastructure/terraform plan -out=tfplan
