@@ -12,12 +12,6 @@ jobs:
 
     env:
       TF_VERSION: 1.0.0
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: ${{ vars.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
-      AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
-      KUBERNETES_CLUSTER_NAME: "tofood-eks-cluster" # Valor fixo do nome do cluster
 
     steps:
       # 1. Checkout do código-fonte
@@ -30,27 +24,18 @@ jobs:
         with:
           terraform_version: "1.0.0"
 
-      # 3. Configurar as credenciais da AWS usando os secrets do GitHub
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ vars.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      # 4. Verificar formatação do Terraform
+      # 3. Verificar formatação do Terraform
       - name: Terraform Format Check
-        run: terraform fmt -check -recursive
+        run: terraform -chdir=src/infrastructure/terraform fmt -check -recursive
 
-      # 5. Inicializar o Terraform
+      # 4. Inicializar o Terraform
       - name: Terraform Init
-        run: terraform init
+        run: terraform -chdir=src/infrastructure/terraform init
 
-      # 6. Validar a configuração do Terraform
+      # 5. Validar a configuração do Terraform
       - name: Terraform Validate
-        run: terraform validate
+        run: terraform -chdir=src/infrastructure/terraform validate
 
-      # 7. Planejar as mudanças de infraestrutura e salvar o plano
+      # 6. Planejar as mudanças de infraestrutura e salvar o plano
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform -chdir=src/infrastructure/terraform plan -out=tfplan
