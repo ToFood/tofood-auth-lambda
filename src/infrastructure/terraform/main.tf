@@ -56,10 +56,10 @@ resource "aws_cognito_user_pool_client" "tofood_user_pool_client" {
   callback_urls = ["https://tofood.com/callback"]
   logout_urls   = ["https://tofood.com/logout"]
   
-  # Validade dos Tokens (em minutos)
-  access_token_validity  = 60    # 60 minutos
-  id_token_validity      = 60    # 60 minutos
-  refresh_token_validity = 43200 # 30 dias em minutos
+  # Validade dos Tokens (em minutos dentro dos intervalos permitidos)
+  access_token_validity  = 60      # 60 minutos
+  id_token_validity      = 60      # 60 minutos
+  refresh_token_validity = 43200   # 30 dias em minutos (dentro do intervalo permitido)
 }
 
 # Cognito User Pool Domain para URLs amigáveis de autenticação
